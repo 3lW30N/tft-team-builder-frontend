@@ -3,7 +3,7 @@
 export interface Unit {
   id: string;
   name: string;
-  tier?: number | null;      // schema has `tier`; entity doesn't expose it yet (see API report)
+  cost?: number | null;
   imageLink?: string | null;
 }
 
@@ -35,6 +35,7 @@ export interface Build {
   unit?: Unit | null;
   items: (Item | null)[];   // length 0..3
   stars?: number | null;
+  cost?: number | null;
   avgPlacement?: number | null;
 }
 
@@ -53,6 +54,7 @@ export interface Comp {
 export interface BoardSlot {
   unit: Unit;
   stars: number;            // 1..3
+  cost?: number | null;
 }
 
 export interface Board {

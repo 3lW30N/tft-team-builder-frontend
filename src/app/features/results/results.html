@@ -14,7 +14,7 @@
         <span class="yb-label">Your champions</span>
         <div class="yb-units">
           @for (slot of store.slots(); track slot.unit.id) {
-            <tft-portrait [unit]="slot.unit" [stars]="slot.stars" style="--size: 44px" />
+            <tft-portrait [unit]="slot.unit" [stars]="slot.stars" [cost]="slot.cost" style="--size: 44px" />
           }
         </div>
       </div>
@@ -95,7 +95,7 @@
                 @for (b of m.comp.builds; track b.unitId) {
                   <div class="cu" [class.owned]="m.matchedUnits.includes(b.unitId)"
                        [class.missing]="m.missingUnits.includes(b.unitId)">
-                    <tft-portrait [unit]="unitFor(b.unitId)" [stars]="b.stars" style="--size: 40px" />
+                    <tft-portrait [unit]="unitFor(b.unitId)" [stars]="b.stars" [cost]="b.cost" style="--size: 40px" />
                     @if (b.items.length) {
                       <div class="cu-items">
                         @for (it of b.items; track $index) {

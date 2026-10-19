@@ -59,7 +59,7 @@
       @for (b of comp()!.builds; track b.unitId) {
         <div class="build card" [class.owned]="owned(b.unitId)">
           @if (owned(b.unitId)) { <span class="owned-tag">On your board</span> }
-          <tft-portrait [unit]="unitFor(b.unitId)" [stars]="b.stars" style="--size: 76px" />
+          <tft-portrait [unit]="unitFor(b.unitId)" [stars]="b.stars" [cost]="b.cost" style="--size: 76px" />
           <div class="build-name">{{ unitFor(b.unitId).name }}</div>
           <div class="build-items">
             @if (b.items.length) {

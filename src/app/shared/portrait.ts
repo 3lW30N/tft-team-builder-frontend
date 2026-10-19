@@ -6,7 +6,7 @@ import { Unit } from '../core/models';
   selector: 'tft-portrait',
   standalone: true,
   template: `
-    <div class="portrait" [class]="costClass()" [attr.title]="unit().name">
+    <div class="portrait" [class]="costClass()"  [attr.title]="unit().name">
       <img
         [src]="src()"
         [alt]="unit().name"
@@ -14,7 +14,7 @@ import { Unit } from '../core/models';
         />
       @if (stars()) {
         <div class="stars" [attr.data-stars]="stars()">
-          @for (s of starArr(); track $index) { <span>★</span> }
+          @for (_ of starArr(); track $index) { <span>★</span> }
         </div>
       }
     </div>
@@ -45,9 +45,12 @@ import { Unit } from '../core/models';
 export class Portrait {
   unit = input.required<Unit>();
   stars = input<number | null | undefined>(null);
-  cost = input<number | null | undefined>(null);
+  cost = input<Unit['cost']>(null);
 
   src = () => this.unit().imageLink ?? '';
   starArr = () => Array.from({ length: this.stars() ?? 0 });
-  costClass = () => (this.cost() ? `cost-${this.cost()}` : '');
+  costClass = () => {
+    const value = this.cost() ?? this.unit().cost ?? null;
+    return value != null ? `cost-${value}` : '';
+  };
 }

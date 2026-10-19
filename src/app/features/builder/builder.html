@@ -26,7 +26,7 @@
             <button class="slot-remove" (click)="store.removeUnit(slot.unit.id)" title="Remove">×</button>
             <button class="star-btn" (click)="cycleStars(slot.unit.id, slot.stars, $event)"
                     title="Tap to change star level">
-              <tft-portrait [unit]="slot.unit" [stars]="slot.stars" style="--size: 72px" />
+              <tft-portrait [unit]="slot.unit" [stars]="slot.stars" [cost]="slot.cost" style="--size: 72px" />
             </button>
             <div class="slot-name">{{ slot.unit.name }}</div>
           </div>

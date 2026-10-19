@@ -17,7 +17,7 @@ export class BoardStore {
   // ---- units ----
   addUnit(unit: Unit): void {
     if (this.unitIds().has(unit.id)) return;
-    this._slots.update((s) => [...s, { unit, stars: 1 }]);
+    this._slots.update((s) => [...s, { unit, stars: 1, cost: unit.cost ?? null }]);
   }
 
   removeUnit(unitId: string): void {
@@ -63,7 +63,7 @@ export class BoardStore {
       if (!chunk) continue;
       const [uid, stars] = chunk.split('.');
       const unit = units.get(uid);
-      if (unit) slots.push({ unit, stars: Number(stars) || 1 });
+      if (unit) slots.push({ unit, stars: Number(stars) || 1, cost: unit.cost ?? null });
     }
     this._slots.set(slots);
 

@@ -97,23 +97,7 @@ if it 404s — so adding it is a drop-in speed-up.
 
 ---
 
-## 4. Populate `image_link` — RECOMMENDED (removes client-side guessing)
-
-The frontend uses the `imageLink` value returned by the API directly, so
-`image_link` must be populated for every unit, item, and trait. The previous
-client-side filename rules are listed below only to document the old behavior:
-
-| Entity | Rule the client uses |
-|--------|----------------------|
-| trait  | `/img/trait/Trait_Icon_18_{id}.TFT_Set18.png` |
-| item   | `/img/item/item/DA_{id}.png` |
-| emblem | `/img/item/emblem/DA_18_Emblem{Trait}.png` (ids ending `Emblem`) |
-| component | `/img/item/component/DA_Component_{id}.png` |
-| unit   | lookup table (`champion-images.json`) — **unit filenames are irregular** |
-
-Units are the fragile case: ids like `Nidalee18AP` map to files like
-`TFT18_Nidalee_splash_centered_0.TFT_Set18.png` with no clean rule, so the
-frontend ships a generated `public/data/champion-images.json`. The backend should **store the real `image_link` on each row** and return it.
+## 4. Missing field on `unit` entity — RECOMMENDED (UI polish)
 
 The `unit` entit@y also doesn't expose the `tier` column that exists in the schema
 — expose it to show champion cost colors on portraits.

@@ -7,7 +7,7 @@ import { Unit, Item, Trait, Comp, Build } from './models';
 /** Raw shapes the Spring Boot API currently returns (loose — tolerant of nulls). */
 interface RawItem { id: string; name: string; imageLink?: string; }
 interface RawTrait { id: string; name: string; imageLink?: string; }
-interface RawUnit { id: string; name: string; tier?: number; imageLink?: string; }
+interface RawUnit { id: string; name: string; tier?: number; cost?: number; imageLink?: string; }
 interface RawBuild {
   id?: number;
   avgPlacement?: number;
@@ -161,7 +161,7 @@ export class ApiService {
     return {
       id: b.id,
       unitId: b.unitId ?? b.unit?.id ?? '',
-      unit: b.unit ? { id: b.unit.id, name: b.unit.name, imageLink: b.unit.imageLink ?? null } : null,
+      unit: b.unit ? { id: b.unit.id, name: b.unit.name, cost: b.unit.cost ?? null, imageLink: b.unit.imageLink ?? null } : null,
       items,
       stars: b.stars ?? null,
       avgPlacement: b.avgPlacement ?? null,
