@@ -14,6 +14,7 @@ interface RawBuild {
   stars?: number;
   unitId?: string;
   unit?: RawUnit;
+  items?: RawItem[];
   item1?: RawItem | null;
   item2?: RawItem | null;
   item3?: RawItem | null;
@@ -155,9 +156,8 @@ export class ApiService {
   }
 
   private normalizeBuild(b: RawBuild): Build {
-    const items = [b.item1, b.item2, b.item3]
-      .filter((x): x is RawItem => !!x)
-      .map((x) => ({ id: x.id, name: x.name, imageLink: x.imageLink ?? null }));
+    const rawItems = b.items ?? [b.item1, b.item2, b.item3].filter((x): x is RawItem => !!x);
+    const items = rawItems.map((x) => ({ id: x.id, name: x.name, imageLink: x.imageLink ?? null }));
     return {
       id: b.id,
       unitId: b.unitId ?? b.unit?.id ?? '',

@@ -6,10 +6,11 @@ import { Unit } from '../core/models';
   selector: 'tft-portrait',
   standalone: true,
   template: `
-    <div class="portrait" [class]="costClass()"  [attr.title]="unit().name">
+    <div class="portrait" [class]="costClass()" [attr.title]="unit().name">
       <img
         [src]="src()"
         [alt]="unit().name"
+        [class.right-crop]="shouldAlignRight()"
         loading="lazy"
         />
       @if (stars()) {
@@ -31,6 +32,7 @@ import { Unit } from '../core/models';
       box-shadow: 0 2px 8px rgba(0,0,0,.4);
     }
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .right-crop { object-position: right center; }
     .stars {
       position: absolute; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: center; gap: 1px;
@@ -49,6 +51,11 @@ export class Portrait {
 
   src = () => this.unit().imageLink ?? '';
   starArr = () => Array.from({ length: this.stars() ?? 0 });
+  shouldAlignRight = () => {
+    const src = this.src();
+    const filename = src.split('/').pop() ?? '';
+    return !!src && !filename.includes('centered');
+  };
   costClass = () => {
     const value = this.cost() ?? this.unit().cost ?? null;
     return value != null ? `cost-${value}` : '';
