@@ -6,12 +6,12 @@ gracefully where endpoints are missing (empty states, not crashes). To make it
 
 ---
 
-## 1. Comp endpoints — REQUIRED (the app's whole purpose)
+## 1. ~~Comp endpoints — REQUIRED (the app's whole purpose)~~
 
 There is no `CompController`. The ranking feature cannot work without it. The
 frontend calls:
 
-### `GET /comp/all`
+### ~~`GET /comp/all`~~
 Return every meta comp with its builds nested. Expected JSON:
 
 ```json
@@ -38,7 +38,7 @@ Return every meta comp with its builds nested. Expected JSON:
 ]
 ```
 
-### `GET /comp/{id}`
+### ~~`GET /comp/{id}`~~
 Same shape, single comp. Used by the comp-detail page (also falls back to the
 cached list, so it's optional but nice for deep-links).
 
@@ -62,21 +62,9 @@ cached list, so it's optional but nice for deep-links).
 
 ## 2. `unit_trait` table is EMPTY — data gap
 
-`02-data.sql` inserts units and traits but **never inserts into `unit_trait`**.
-So `GET /traits/{unitId}` returns `[]` for every unit. Consequences:
-
 - Trait synergy contributes **nothing** to comp ranking (the engine still works
   on unit + item overlap, so matches are reasonable, just not trait-aware).
 - The comp-detail "traits" row is empty.
-
-**Fix:** seed `unit_trait`. Each Set 18 champion has 2-3 traits. Example:
-
-```sql
-insert into unit_trait (unit_id, trait_id) values
-  ('Aphelios', 'Lunar'), ('Aphelios', 'Rapidfire'),
-  ('Diana', 'Lunar'), ('Diana', 'Executioner')
-on conflict do nothing;
-```
 
 ---
 

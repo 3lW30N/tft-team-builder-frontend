@@ -61,32 +61,22 @@ export class ApiService {
       .pipe(map((t) => t ?? []), shareReplay(1)));
   }
 
-  /** GET /traits/{unitId} — traits of one unit. */
+  /** GET /trait/{unitId} — traits of one unit. */
   getTraitsOfUnit(unitId: string): Observable<Trait[]> {
     return this.http
-      .get<RawTrait[]>(`${this.base}/traits/${encodeURIComponent(unitId)}`)
+      .get<RawTrait[]>(`${this.base}/trait/${encodeURIComponent(unitId)}`)
       .pipe(map((t) => t ?? []), catchError(() => of([])));
   }
 
-  /** GET /traits/units/{traitId} — units that carry a trait. */
+  /** GET /trait/units/{traitId} — units that carry a trait. */
   getUnitsOfTrait(traitId: string): Observable<Unit[]> {
     return this.http
-      .get<RawUnit[]>(`${this.base}/traits/units/${encodeURIComponent(traitId)}`)
+      .get<RawUnit[]>(`${this.base}/trait/units/${encodeURIComponent(traitId)}`)
       .pipe(map((u) => u ?? []), catchError(() => of([])));
   }
 
-  // ---- Needed endpoints (see API report) ----------------------------------
-  // These don't exist yet. The calls are written to the agreed contract and
-  // fall back to [] so the UI degrades gracefully until the API ships them.
-
   private comps$?: Observable<Comp[]>;
 
-  /**
-   * GET /comp/all — every meta comp with its builds nested.
-   * REQUIRED: there is no CompController yet. Expected JSON per comp:
-   *   { id, name, avgPlacement, winRate, difficulty, levelling,
-   *     builds: [{ unitId, stars, avgPlacement, item1, item2, item3 }] }
-   */
   getComps(): Observable<Comp[]> {
     return (this.comps$ ??= this.http
       .get<RawComp[]>(`${this.base}/comp/all`)
@@ -116,7 +106,7 @@ export class ApiService {
 
   getTraitsByUnit(): Observable<Map<string, string[]>> {
     return (this.traitsByUnit$ ??= this.http
-      .get<{ unitId: string; traitIds: string[] }[]>(`${this.base}/traits/all`)
+      .get<{ unitId: string; traitIds: string[] }[]>(`${this.base}/trait/all`)
       .pipe(
         map((rows) => {
           const m = new Map<string, string[]>();
