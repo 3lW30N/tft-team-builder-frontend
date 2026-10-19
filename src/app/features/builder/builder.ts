@@ -39,7 +39,11 @@ export class Builder {
 
   filteredUnits = computed(() => {
     const q = this.unitQuery().trim().toLowerCase();
-    const list = [...this.allUnits()].sort((a, b) => a.name.localeCompare(b.name));
+    const list = [...this.allUnits()].sort((a, b) => {
+      const costA = a.cost ?? Number.MAX_SAFE_INTEGER;
+      const costB = b.cost ?? Number.MAX_SAFE_INTEGER;
+      return costA - costB || a.name.localeCompare(b.name);
+    });
     return q ? list.filter((u) => u.name.toLowerCase().includes(q)) : list;
   });
 
