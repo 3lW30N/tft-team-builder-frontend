@@ -25,9 +25,8 @@ export interface Item {
 
 /**
  * A build is one unit slot inside a comp: the champion, its items, star level.
- * The backend `Build` entity currently nests `item1/2/3` as full Item objects but
- * does NOT expose the `unit_id` relation (see API report). We model the shape the
- * frontend needs; the service normalises whatever the API returns into this.
+ * The backend returns a BuildDto with a unit id and its items. The API service
+ * normalises that response into this shape for the views.
  */
 export interface Build {
   id?: number;

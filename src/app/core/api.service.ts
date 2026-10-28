@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, of, catchError, shareReplay, forkJoin, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Unit, Item, Trait, Comp, Build } from './models';
+import { Unit, Item, Trait, Comp, Build, Board, CompMatch } from './models';
 
 /** Raw shapes the Spring Boot API currently returns (loose — tolerant of nulls). */
 interface RawItem { id: string; name: string; imageLink?: string; }
@@ -61,10 +61,10 @@ export class ApiService {
       .pipe(map((t) => t ?? []), shareReplay(1)));
   }
 
-  /** GET /trait/{unitId} — traits of one unit. */
+  /** GET /traits/{unitId} — traits of one unit. */
   getTraitsOfUnit(unitId: string): Observable<Trait[]> {
     return this.http
-      .get<RawTrait[]>(`${this.base}/trait/${encodeURIComponent(unitId)}`)
+      .get<RawTrait[]>(`${this.base}/traits/${encodeURIComponent(unitId)}`)
       .pipe(map((t) => t ?? []), catchError(() => of([])));
   }
 
@@ -95,18 +95,30 @@ export class ApiService {
     );
   }
 
+  /** POST /comp/match — rankings and explanations are calculated by the API. */
+  getMatches(board: Board): Observable<CompMatch[]> {
+    const request = {
+      units: board.slots.map((slot) => ({ unitId: slot.unit.id, stars: slot.stars })),
+      itemIds: board.items.map((item) => item.id),
+    };
+    return this.http.post<(Omit<CompMatch, 'comp'> & { comp: RawComp })[]>(`${this.base}/comp/match`, request)
+      .pipe(map((matches) => (matches ?? []).map((match) => ({
+        ...match,
+        comp: this.normalizeComp(match.comp),
+      }))));
+  }
+
   /**
-   * Returns a map of unitId -> trait ids, needed by the ranking engine.
+   * Returns a map of unitId -> trait ids for the composition detail page.
    *
-   * Preferred: a bulk endpoint GET /traits/all returning
-   *   [{ unitId, traitIds: [...] }]  (see API report — avoids 1 request per unit).
-   * Fallback: fan out /traits/{unitId} across all units (works today, chatty).
+   * Preferred: GET /traits/all returning [{ unitId, traitIds: [...] }].
+   * Fallback: fan out /traits/{unitId} across all units.
    */
   private traitsByUnit$?: Observable<Map<string, string[]>>;
 
   getTraitsByUnit(): Observable<Map<string, string[]>> {
     return (this.traitsByUnit$ ??= this.http
-      .get<{ unitId: string; traitIds: string[] }[]>(`${this.base}/trait/all`)
+      .get<{ unitId: string; traitIds: string[] }[]>(`${this.base}/traits/all`)
       .pipe(
         map((rows) => {
           const m = new Map<string, string[]>();

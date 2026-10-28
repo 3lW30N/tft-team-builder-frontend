@@ -1,12 +1,11 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, combineLatest, of, startWith, switchMap } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { BoardStore } from '../../core/board-store';
-import { MatchEngine } from '../../core/match-engine';
-import { Comp, CompMatch, Item, Unit } from '../../core/models';
+import { CompMatch, Item, Unit } from '../../core/models';
 import { Portrait } from '../../shared/portrait';
 import { ItemIcon } from '../../shared/item-icon';
 
@@ -21,7 +20,6 @@ export class Results {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private engine = inject(MatchEngine);
   store = inject(BoardStore);
 
   // Reference data + comps, loaded together.
@@ -29,13 +27,20 @@ export class Results {
     combineLatest({
       units: this.api.getUnits(),
       items: this.api.getItems(),
-      comps: this.api.getComps(),
-      traitsByUnit: this.api.getTraitsByUnit(),
     }),
     { initialValue: null },
   );
 
-  loading = computed(() => this.data() === null);
+  private apiMatches = toSignal(
+    toObservable(this.store.board).pipe(
+      switchMap((board) => board.slots.length
+        ? this.api.getMatches(board).pipe(startWith(null), catchError(() => of([] as CompMatch[])))
+        : of([] as CompMatch[])),
+    ),
+    { initialValue: null },
+  );
+
+  loading = computed(() => this.data() === null || (this.store.hasUnits() && this.apiMatches() === null));
 
   constructor() {
     // Restore the board from ?board= once reference data arrives (shareable links, refresh-safe).
@@ -50,15 +55,10 @@ export class Results {
     });
   }
 
-  matches = computed<CompMatch[]>(() => {
-    const d = this.data();
-    if (!d) return [];
-    if (!this.store.hasUnits()) return [];
-    return this.engine.rank(this.store.board(), d.comps, d.traitsByUnit);
-  });
+  matches = computed<CompMatch[]>(() => this.apiMatches() ?? []);
 
   topMatches = computed(() => this.matches().filter((m) => m.score > 0).slice(0, 20));
-  noComps = computed(() => !this.loading() && (this.data()?.comps.length ?? 0) === 0);
+  noComps = computed(() => !this.loading() && this.matches().length === 0);
 
   // Resolve unit objects for a comp's builds so portraits render names/images.
   unitFor = (id: string): Unit => {
