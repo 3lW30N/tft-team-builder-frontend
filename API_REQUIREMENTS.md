@@ -31,5 +31,5 @@ Scoring uses champion overlap (60%, carries weighted twice), trait overlap
 (25%), and item overlap (15%, with duplicate items counted separately).
 
 The frontend sends the board's item pool independently from champion slots.
-Star levels are included in the request for future use; they do not affect
-the current score.
+Each matched 2-star unit adds 1 point, and each matched 3-star unit adds 2
+points. The star bonus is capped at 5 points, and the final score at 100.

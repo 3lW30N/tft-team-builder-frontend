@@ -16,7 +16,7 @@ Le site est disponible sur `http://localhost:4200`. `proxy.conf.json` redirige `
 ## Fonctionnement
 
 - Le plateau est conservé dans `BoardStore` et peut être partagé par le paramètre `?board=` (`unitId.stars,...|itemId,...`). Les items constituent un pool libre; ils ne sont pas liés à un champion.
-- L'écran des résultats envoie ce plateau à `POST /comp/match`. L'API renvoie les compositions triées, les scores, les champions présents ou manquants et les raisons du classement. Il n'y a plus de moteur de classement dans le front.
+- L'écran des résultats envoie ce plateau à `POST /comp/match`. L'API renvoie les compositions triées, les scores, les champions présents ou manquants et les raisons du classement. Les étoiles des champions communs apportent un petit bonus au score (5 points maximum). Il n'y a plus de moteur de classement dans le front.
 - L'écran de détail charge les compositions via `GET /comp/all` et les traits des champions via `GET /traits/all` (avec recours à `GET /traits/{unitId}` si nécessaire).
 - `ApiService` normalise les réponses du backend pour les composants Angular. Le contrat complet figure dans [API_REQUIREMENTS.md](API_REQUIREMENTS.md).
 
