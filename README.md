@@ -1,59 +1,29 @@
 # TFT Team Builder — frontend
 
-Angular 22 app. Players enter their current board (champions + items), and it
-ranks the meta comps closest to what they already have. No accounts. Set 18 /
-patch 18 theming.
+Application Angular 22 pour saisir les champions et les items du joueur, puis afficher les compositions TFT les plus proches. Le calcul des scores est effectué par l'API Spring Boot du dépôt voisin `tft-team-builder`.
 
-## Run it
+## Démarrage
 
-```bash
-cd frontend
+Démarre d'abord PostgreSQL et l'API comme indiqué dans le README du backend (`docker compose up -d --build`, puis `./mvnw spring-boot:run`). Ensuite :
+
+```powershell
 npm install
-npm start          # http://localhost:4200 — proxies /api and /img to :8080
+npm start
 ```
 
-The dev proxy (`proxy.conf.json`) forwards:
-- `/api/**` → `http://localhost:8080` (strips `/api`, so `/api/unit/all` hits `/unit/all`)
-- `/img/**` → `http://localhost:8080` (the Spring Boot static champion/item/trait art)
+Le site est disponible sur `http://localhost:4200`. `proxy.conf.json` redirige `/api/**` vers `localhost:8080` en retirant `/api`, et `/img/**` vers les images servies par le backend. `npm run build` crée le bundle dans `dist/frontend`. Le serveur `npm start` surveille les fichiers et recharge le front pendant le développement.
 
-So start the Spring Boot backend on :8080 first. Without it the app still loads
-and shows empty states.
+## Fonctionnement
 
-## Build
+- Le plateau est conservé dans `BoardStore` et peut être partagé par le paramètre `?board=` (`unitId.stars,...|itemId,...`). Les items constituent un pool libre; ils ne sont pas liés à un champion.
+- L'écran des résultats envoie ce plateau à `POST /comp/match`. L'API renvoie les compositions triées, les scores, les champions présents ou manquants et les raisons du classement. Il n'y a plus de moteur de classement dans le front.
+- L'écran de détail charge les compositions via `GET /comp/all` et les traits des champions via `GET /traits/all` (avec recours à `GET /traits/{unitId}` si nécessaire).
+- `ApiService` normalise les réponses du backend pour les composants Angular. Le contrat complet figure dans [API_REQUIREMENTS.md](API_REQUIREMENTS.md).
 
-```bash
-npm run build      # outputs to dist/frontend
+## Vérification
+
+```powershell
+npm run build
 ```
 
-## What the API needs
-
-The ranking feature needs comp endpoints that don't exist yet, and a couple of
-data fixes. See **API_REQUIREMENTS.md** for the full list with example payloads.
-
-## Structure
-
-```
-src/app/
-  core/
-    models.ts          # TS interfaces mirroring the JPA entities
-    api.service.ts      # all HTTP calls, normalises backend shapes
-    match-engine.ts     # client-side comp similarity scoring
-    board-store.ts      # the player's current board (signals, no accounts)
-  features/
-    builder/            # pick champions + items (home page)
-    results/            # ranked comp matches + comp detail
-  shared/
-    portrait.ts         # champion portrait w/ cost ring and stars
-    item-icon.ts        # item icon
-```
-
-## Notes
-
-- **Images**: image URLs come directly from the `imageLink` values returned by
-  the API. The backend must populate `image_link` for units, items, and traits.
-- **Matching** runs client-side and is transparent — the UI shows *why* each comp
-  matched. Scoring lives in `match-engine.ts`. The player's items are a **flat
-  pool** (not pinned to champions); item score is how many of a comp's recommended
-  items the player already holds, compared as a multiset.
-- **Shareable boards**: the board is encoded in `?board=` on the results URL
-  (format `unitId.stars,...|itemId,...`), so a link reproduces the exact board.
+Pour vérifier le parcours, ajoute un champion et un item, ouvre les résultats et vérifie que le détail de la première composition s'affiche. Le skill `test-tft-project` du dépôt backend décrit les tests des deux dépôts.
