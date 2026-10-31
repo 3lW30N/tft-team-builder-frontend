@@ -1,59 +1,29 @@
-# TftTeamBuilderFrontend
+# TFT Team Builder — frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.26.
+Application Angular 22 pour saisir les champions et les items du joueur, puis afficher les compositions TFT les plus proches. Le calcul des scores est effectué par l'API Spring Boot du dépôt voisin `tft-team-builder`.
 
-## Development server
+## Démarrage
 
-To start a local development server, run:
+Démarre d'abord PostgreSQL et l'API comme indiqué dans le README du backend (`docker compose up -d --build`, puis `./mvnw spring-boot:run`). Ensuite :
 
-```bash
-ng serve
+```powershell
+npm install
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Le site est disponible sur `http://localhost:4200`. `proxy.conf.json` redirige `/api/**` vers `localhost:8080` en retirant `/api`, et `/img/**` vers les images servies par le backend. `npm run build` crée le bundle dans `dist/frontend`. Le serveur `npm start` surveille les fichiers et recharge le front pendant le développement.
 
-## Code scaffolding
+## Fonctionnement
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Le plateau est conservé dans `BoardStore` et peut être partagé par le paramètre `?board=` (`unitId.stars,...|itemId,...`). Les items constituent un pool libre; ils ne sont pas liés à un champion.
+- L'écran des résultats envoie ce plateau à `POST /comp/match`. L'API renvoie les compositions triées, les scores, les champions présents ou manquants et les raisons du classement. Les étoiles des champions communs apportent un petit bonus au score (5 points maximum). Il n'y a plus de moteur de classement dans le front.
+- L'écran de détail charge les compositions via `GET /comp/all` et les traits des champions via `GET /traits/all` (avec recours à `GET /traits/{unitId}` si nécessaire).
+- `ApiService` normalise les réponses du backend pour les composants Angular. Le contrat complet figure dans [API_REQUIREMENTS.md](API_REQUIREMENTS.md).
 
-```bash
-ng generate component component-name
+## Vérification
+
+```powershell
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Pour vérifier le parcours, ajoute un champion et un item, ouvre les résultats et vérifie que le détail de la première composition s'affiche. Le skill `test-tft-project` du dépôt backend décrit les tests des deux dépôts.
